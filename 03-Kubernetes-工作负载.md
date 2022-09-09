@@ -21,7 +21,7 @@ kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboar
 >   - Pod控制一组容器（Containers）
       >     - 比如Deploy（工作负载） 3个副本的nginx（3个Pod），每个nginx里面是真正的nginx容器（container）
 
-![1619667328103](assets/1619667328103.png)
+![1619667328103](https://raw.githubusercontent.com/sky-bai/k8s_learn/main/images/1619667328103.png)
 
 
 
