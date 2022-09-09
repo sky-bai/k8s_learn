@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job-test
+  namespace: default
+  labels:
+    app: job-test
+spec:
+  completions: 4  #  这里的镜像必须是会结束 前一次结束才能进行下一次 
+  template:
+    spec:
+      containers:
+      - name: job-test 
+        image: nginx   #  job类型的pod，不要用阻塞式镜像。 deployment才应该是阻塞的。
+      restartPolicy: Never  # job情况下，不支持always 
+
+        
