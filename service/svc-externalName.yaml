@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-externalName
+  namespace: default
+spec:
+  # selector:
+    # app: MYAPP
+  type: ExternalName
+  externalName: baidu.com   # 只能写域名  
+  # sessionAffinity: None
+  # sessionAffinityConfig:
+    # clientIP:
+      # timeoutSeconds: 10800
+  # ports:
+  # - name: MYAPP
+    # protocol: TCP
+    # port: 
+    # targetPort: 
+    # If you set the `spec.type` field to `NodePort` and you want a specific port number,
+    # you can specify a value in the `spec.ports[*].nodePort` field.
+    # nodePort: 
+
+# type 类型为 ExternalName 的时候，注释的都不用写
+# netstat -lntp. 一般来说经常使用这个命令：. # 显示当前服务器的所有正在监听TCP端口的信息，并且显示进程PID和进程名，但不显示别名
