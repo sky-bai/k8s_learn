@@ -1,0 +1,43 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: game-demo
+  namespace: default
+data:
+  # 类属性键：kv键值对
+  play_initial_lives: "3"
+  ui_properties_file_name: "user"
+
+  # 类文件键 文件里面的多个键值对
+  game.properties: |
+    enemy.types=aliens,monsters
+    player.maximum-lives=5
+  user-interface.properties:
+    color.good=purple
+    color.bad=yellow
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "cm-pod"
+  namespace: default
+  labels:
+    app: "cm-pod"
+spec:
+  volumes:
+    - name:  my-cm
+      configMap:
+        name:  game-demo # 指定cm的名称 将cm映射到下面 
+  containers:
+  - name: game-demo
+    image: "busybox"
+    command: ["/bin/sh","-c","sleep 3600"]  ## echo $My_USR 
+    env:
+    - name: PLAY_LIVES   # 此时 等于下面的key对应的value
+      valueFrom:
+        configMapKeyRef:
+          name: game-demo
+          key:  play_initial_lives 
+    volumeMounts:
+      - name:  my-cm
+      mountPath:  /app
