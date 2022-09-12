@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pod-pv-reclaim
+  namespace: default
+  labels:
+    app: pod-pv-reclaim
+spec:
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: my-nfs-storage
+  accessModes:
+  - ReadWriteOnce
+  capacity:
+    storage: 10m
+  nfs:
+    server: 21.323.12.11
+    path: /nfs/data/haha
+
+# 创建pv 回收策略为delete 
