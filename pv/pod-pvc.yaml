@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "pod-pvc"
+  namespace: default
+  labels:
+    app: "pod-pvc"
+spec:
+  containers:
+  - name: pod-pvc
+    image: "nginx"
+    env:
+    - name: DB_HOST
+      valueFrom:
+        configMapKeyRef:
+          name: MYAPP
+          key: DB_HOST
+    ports:
+    - containerPort:  80
+      name:  http
+    volumeMounts:
+    - name: localtime
+      mountPath: /etc/localtime
+    - name: html
+  volumes:
+    - name: localtime
+      hostPath:
+        path: /usr/share/zoneinfo/Asia/Shanghai
+    - name: html
+      persistentVolumeClaim:
+        claimName: nginx-pvc   # 写申请书的名字  就是下面申请存储卷的名字  
+  restartPolicy: Always
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nginx-pvc
+  namespace: default
+  labels:
+    app: nginx-pvc
+spec:
+  storageClassName: my-nfs-storage    # pv池的分组名  my-nfs-storage my-ceph-storage 不同存储类别 
+  accessModes:
+  - ReadWriteOnce   # 单结点读写的东西 
+  resources:
+    requests:
+      storage: 50m
+# 容器删除后，volume不会删除 且 两者绑定关系还在 别人无法使用 
