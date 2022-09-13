@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "pod-with-node-affinity"
+  namespace: busy-affinity
+  labels:
+    app: "pod-with-node-affinity"
+spec:
+  affinity: # 约束该pod应该去那个node 节点 亲和性
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:  # 硬性过滤：排除不具备指定label的node。 
+        nodeSelectorTerms:
+          - matchExpressions: # 所有matchExpressions满足条件才行。
+              - key: disktype
+                operator: In  # Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+                values: ["ssd","hdd"]
+                # In disktype只要是ssd或者是hdd
+                # NotIn disktype只要不是ssd或者是hdd
+                # Exists disktype只要存在，无论值是什么，value不用写
+                # DoesNotExists disktype只要不存在，无论值是什么，value不用写。
+                # Gt key大于指定的值的节点
+                # Lt key小于指定的值的节点
+      # DuringScheduling(调度期间有效) IgnoredDuringExecution （执行期间无效） 即便是不满足条件后也会保持原状。
+      preferredDuringSchedulingIgnoredDuringExecution:  # 软性评分：不具备指定label的node打低分。降低node的选中概率。
+      - preference:
+          matchExpressions:
+          - key: disk
+            operator: Gt 
+            values: ["40"] 
+        weigth: 90
+      - preference: # 指定我们喜欢的条件 
+          matchExpressions:
+          - key: gpu3060
+            operator: Gt 
+            values: ["40"] 
+        weigth: 10  
+  containers:
+  - name: pod-with-node-affinity
+    image: "busybox"
+    command: ["sleep","3600"]
+    resources:
+      limits:
+        cpu: 200m
+        memory: 500Mi
+      requests:
+        cpu: 100m
+        memory: 200Mi
+    env:
+    - name: DB_HOST
+      valueFrom:
+        configMapKeyRef:
+          name: MYAPP
+          key: DB_HOST
+    ports:
+    - containerPort:  80
+      name:  http
+    volumeMounts:
+    - name: localtime
+      mountPath: /etc/localtime
+  volumes:
+    - name: localtime
+      hostPath:
+        path: /usr/share/zoneinfo/Asia/Shanghai
+  restartPolicy: Always
+
+  # requiredDuringSchedulingIgnoredDuringExecution 硬性过滤：排除不具备指定label的node。 不满足不调度。
+  # 软性评分：不具备指定label的node打低分。降低node的选中概率。 不满足也可以调度。
