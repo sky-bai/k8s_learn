@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name:  blj
+  apiVersion: v1
+  kind: Namespace
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: pod-reader
+rules:
+- apiGroups: [""] # "" 标明 core API 组
+  resources: ["pods"]
+  verbs: ["get", "watch", "list"]
+  ---
+  apiVersion: rbac.authorization.k8s.io/v1
+# 此角色绑定允许 "jane" 读取 "default" 名字空间中的 Pod
+# 你需要在该命名空间中有一个名为 “pod-reader” 的 Role
+---
+kind: RoleBinding
+metadata:
+  name: read-pods
+  namespace: default
+subjects:
+# 你可以指定不止一个“subject（主体）”
+- kind: ServiceAccount # 这里对应服务账号的kind
+  name: blj # "name" 是区分大小写的
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  # "roleRef" 指定与某 Role 或 ClusterRole 的绑定关系
+  kind: Role        # 此字段必须是 Role 或 ClusterRole
+  name: pod-reader  # 此字段必须与你要绑定的 Role 或 ClusterRole 的名称匹配
+  apiGroup: rbac.authorization.k8s.io
+
+  # 第一段写账号，第二段写角色，第三段写绑定关系
+
+  # 详细文档：https://kubernetes.io/zh-cn/docs/reference/access-authn-authz/rbac/
+
+  # kubectl get serviceAccount
+  # kubectl get secret 查看账号token 
